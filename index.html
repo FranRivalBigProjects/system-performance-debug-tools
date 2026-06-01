@@ -3,77 +3,219 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>System Performance Debug Tools – CPU Bottlenecks, Memory Leaks & Profiling</title>
-
-<meta name="description" content="Advanced system performance debug tools to analyze CPU bottlenecks, memory leaks, disk I/O, system load, and process behavior for optimization and troubleshooting.">
-
-<meta name="keywords" content="cpu bottleneck analyzer tool, memory leak detector system, disk io analyzer tool, system load monitoring tool, process analyzer performance, system profiler tool debug">
-
 <meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
 
+<title>Tools to Diagnose Performance Bottlenecks – CPU, Memory, Database & Load Testing</title>
+<meta name="description" content="The definitive guide to performance bottleneck diagnosis tools. Free interactive Bottleneck Finder wizard, top tools by category (CPU, memory, database, load testing, network), and a step-by-step diagnosis guide. Updated 2026.">
+<link rel="canonical" href="https://franrivalbigprojects.github.io/perf-tools/bottleneck-diagnostic/">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Tools to Diagnose Performance Bottlenecks – Complete Guide 2026",
+  "description": "Guide to diagnosing performance bottlenecks with free and paid tools. Covers CPU, memory, disk I/O, database, network, and application-level bottlenecks.",
+  "datePublished": "2026-01-01",
+  "dateModified": "2026-05-31"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a performance bottleneck?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A performance bottleneck is a single component or resource that limits the overall performance of a system. The bottleneck is the constraint — fixing anything else won't improve overall speed until the bottleneck is resolved. Common bottlenecks: CPU saturation (>80% sustained usage), memory exhaustion (causing paging/swapping), disk I/O saturation (queue depth > 1 sustained), database query latency, network bandwidth or latency, and application-level issues like thread contention or N+1 query patterns." }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you identify a performance bottleneck?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The standard method: (1) Establish baseline metrics (CPU, memory, disk I/O, network, response time) under normal load. (2) Run a load test to simulate production traffic. (3) Monitor all resources simultaneously. (4) Identify which resource saturates first — that's your bottleneck. Tools: top/htop/sar for Linux system metrics, Perfmon for Windows, Datadog or New Relic for distributed systems, explain plan in databases, async profilers (async-profiler, py-spy) for application code." }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the most common performance bottleneck tools used by professionals?",
+      "acceptedAnswer": { "@type": "Answer", "text": "For system-level: htop, sar, perf (Linux), Process Monitor/Perfmon (Windows). For applications: async-profiler (JVM), py-spy (Python), dotnet-trace (.NET), Pyroscope (continuous profiling). For databases: EXPLAIN ANALYZE (PostgreSQL), slow query log (MySQL), pg_stat_statements. For distributed systems: Datadog, Grafana+Prometheus, New Relic, Dynatrace. For load testing: Gatling, k6, JMeter, Locust. For web: Chrome DevTools Performance tab, WebPageTest." }
+    }
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #020617;
-    color: #e5e7eb;
-    margin: 0;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:    #08090e;
+  --bg2:   #0d0f18;
+  --bg3:   #121620;
+  --border:#1c2030;
+  --border2:#243048;
+  --text:  #dce4f8;
+  --muted: #50688c;
+  --accent:#ef4444;
+  --accent2:#c03030;
+  --blue:  #38bdf8;
+  --blue-dim:#031420;
+  --green: #22c55e;
+  --green-dim:#061606;
+  --orange:#f59e0b;
+  --orange-dim:#180e00;
+  --purple:#a78bfa;
+  --teal:  #2dd4bf;
+  --mono:  'JetBrains Mono', monospace;
+  --sans:  'Inter', sans-serif;
 }
 
-header {
-    background: linear-gradient(90deg, #ef4444, #0ea5e9);
-    padding: 30px;
-    text-align: center;
-}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.7; }
+.container { max-width: 980px; margin: 0 auto; padding: 0 22px; }
 
-h1 {
-    margin: 0;
-    font-size: 2.5rem;
-}
+/* HEADER */
+header { background: linear-gradient(135deg, #0d0f18, #12101a); border-bottom: 1px solid var(--border2); padding: 48px 0 32px; }
+.breadcrumb { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+.breadcrumb a { color: var(--muted); text-decoration: none; }
+h1 { font-size: clamp(22px, 4vw, 38px); font-weight: 700; line-height: 1.1; color: #fff; margin-bottom: 12px; }
+h1 em { color: var(--accent); font-style: normal; }
+.byline { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.lead { font-size: 15px; color: var(--muted); max-width: 680px; margin-bottom: 20px; line-height: 1.65; }
+.header-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { font-family: var(--mono); font-size: 10px; padding: 3px 10px; border: 1px solid var(--border2); border-radius: 3px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.pill.hi  { border-color: var(--accent); color: var(--accent); }
+.pill.green{ border-color: var(--green); color: var(--green); }
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 20px;
-}
+/* NAV */
+.nav-bar { background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+.nav-bar .container { display: flex; overflow-x: auto; }
+.nav-bar a { font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; padding: 10px 14px; white-space: nowrap; border-bottom: 2px solid transparent; text-transform: uppercase; letter-spacing: 0.04em; transition: color 0.15s, border-color 0.15s; }
+.nav-bar a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
+/* SECTIONS */
+section { padding: 52px 0; border-bottom: 1px solid var(--border); }
+h2 { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #fff; line-height: 1.2; }
+h2 em { color: var(--accent); font-style: normal; }
+.section-lead { color: var(--muted); font-size: 15px; margin-bottom: 28px; max-width: 680px; line-height: 1.7; }
+h3 { font-size: 18px; font-weight: 600; color: var(--text); margin: 30px 0 10px; }
+h4 { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+p { margin-bottom: 13px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+p:last-child { margin-bottom: 0; }
+code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 3px; color: var(--blue); }
+strong { color: var(--text); }
 
-.card {
-    background: #0f172a;
-    padding: 20px;
-    border-radius: 14px;
-    border: 1px solid #1e293b;
-    transition: 0.3s;
-}
+/* ── WIZARD TOOL ── */
+.wizard-wrap { background: var(--bg2); border: 1.5px solid var(--border2); border-radius: 10px; overflow: hidden; }
+.wizard-head { background: var(--accent2); padding: 14px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.wizard-title { font-family: var(--mono); font-size: 13px; font-weight: 600; color: #fff; }
+.wizard-step-indicator { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.6); }
 
-.card:hover {
-    transform: translateY(-6px);
-    border-color: #ef4444;
-}
+.wizard-body { padding: 28px; }
+.wizard-question { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 20px; line-height: 1.4; }
+.wizard-options { display: flex; flex-direction: column; gap: 10px; }
+.wizard-option { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 8px; padding: 14px 18px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 12px; }
+.wizard-option:hover { border-color: var(--accent); }
+.wizard-option.selected { border-color: var(--accent); background: rgba(239,68,68,0.06); }
+.opt-icon { font-size: 20px; flex-shrink: 0; }
+.opt-text { flex: 1; }
+.opt-label { font-size: 14px; font-weight: 500; color: var(--text); }
+.opt-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-a {
-    text-decoration: none;
-    color: #22c55e;
-    font-weight: bold;
-    display: inline-block;
-    margin-top: 10px;
-}
+.wizard-nav { display: flex; gap: 10px; margin-top: 22px; }
+.wiz-btn { font-family: var(--mono); font-size: 12px; font-weight: 600; padding: 10px 20px; border-radius: 5px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.06em; transition: all 0.15s; border: none; }
+.wiz-primary { background: var(--accent); color: #fff; }
+.wiz-primary:hover { background: var(--accent2); }
+.wiz-secondary { background: var(--bg3); border: 1px solid var(--border2); color: var(--muted); }
+.wiz-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
-a:hover {
-    color: #4ade80;
-}
+/* PROGRESS BAR */
+.wiz-progress { height: 3px; background: var(--border); }
+.wiz-progress-fill { height: 100%; background: var(--accent); transition: width 0.4s; }
 
-footer {
-    text-align: center;
-    padding: 20px;
-    border-top: 1px solid #1e293b;
-    margin-top: 40px;
-    font-size: 0.9rem;
+/* RESULT */
+.wizard-result { padding: 28px; display: none; }
+.wizard-result.visible { display: block; }
+.result-hero { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; border-left: 4px solid var(--accent); }
+.result-type { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.result-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.result-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.result-tools { margin-top: 20px; }
+.rt-label { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+.rt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.rt-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
+.rt-name { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.rt-desc { font-size: 12px; color: var(--muted); }
+.rt-badge { font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 3px; margin-top: 6px; display: inline-block; }
+.badge-free { background: var(--green-dim); color: var(--green); border: 1px solid #1a4a28; }
+.badge-paid { background: var(--orange-dim); color: var(--orange); border: 1px solid #3a2200; }
+.badge-oss  { background: var(--blue-dim); color: var(--blue); border: 1px solid #0a2040; }
+
+.steps-list { list-style: none; margin-top: 16px; }
+.step { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--muted); }
+.step:last-child { border-bottom: none; }
+.step-num { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--accent); min-width: 24px; margin-top: 1px; }
+
+/* ── TOOLS BY CATEGORY ── */
+.cat-tabs { display: flex; overflow-x: auto; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.cat-tab { font-family: var(--mono); font-size: 11px; padding: 10px 16px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--muted); background: none; border-left: none; border-right: none; border-top: none; text-transform: uppercase; letter-spacing: 0.04em; transition: all 0.15s; white-space: nowrap; }
+.cat-tab:hover { color: var(--accent); }
+.cat-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.cat-panel { display: none; }
+.cat-panel.active { display: block; }
+
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.tool-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; transition: border-color 0.15s; }
+.tool-card:hover { border-color: var(--accent); }
+.tc-name { font-weight: 600; font-size: 14px; color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.tc-desc { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 8px; }
+.tc-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.tc-tag { font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 3px; background: var(--bg3); border: 1px solid var(--border); color: var(--muted); }
+.tc-os { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+
+/* COMPARISON TABLE */
+.ref-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 7px; }
+table { width: 100%; border-collapse: collapse; background: var(--bg2); font-size: 13px; }
+thead { background: var(--bg3); }
+thead th { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 13px; text-align: left; color: var(--muted); white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg3); }
+tbody td { padding: 9px 13px; color: var(--muted); font-size: 13px; }
+.td-tool { font-weight: 600; color: var(--text); }
+.c-y { color: var(--green); } .c-n { color: #4a3a3a; } .c-p { color: var(--orange); }
+
+/* INFO GRID */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 16px; }
+.info-block h3 { margin-top: 0; font-size: 15px; }
+
+/* FAQ */
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-q { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 15px 0; cursor: pointer; font-size: 14px; font-weight: 500; user-select: none; color: var(--text); }
+.faq-toggle { font-size: 20px; color: var(--accent); flex-shrink: 0; transition: transform 0.2s; }
+.faq-item.open .faq-toggle { transform: rotate(45deg); }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; font-size: 14px; color: var(--muted); line-height: 1.7; }
+.faq-item.open .faq-a { max-height: 400px; padding-bottom: 14px; }
+
+/* TOOLS NAV */
+.nav-tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 10px; margin-top: 8px; }
+.nav-tool-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; padding: 13px 15px; text-decoration: none; display: block; transition: border-color 0.15s; }
+.nav-tool-card:hover { border-color: var(--accent); }
+.ntc-name { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--text); display: block; margin-bottom: 3px; }
+.ntc-desc { font-size: 12px; color: var(--muted); }
+
+footer { border-top: 1px solid var(--border); padding: 24px 0; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+footer nav { display: flex; gap: 14px; flex-wrap: wrap; }
+footer nav a { color: var(--muted); text-decoration: none; }
+footer nav a:hover { color: var(--accent); }
+
+@media (max-width: 640px) {
+  .info-grid { grid-template-columns: 1fr; }
+  .rt-grid { grid-template-columns: 1fr; }
+  footer .container { flex-direction: column; }
 }
 </style>
 </head>
@@ -81,81 +223,433 @@ footer {
 <body>
 
 <header>
-    <h1>System Performance Debug Tools</h1>
-    <p>Analyze bottlenecks, detect leaks and optimize system performance</p>
+  <div class="container">
+    <p class="breadcrumb"><a href="../">Performance Tools</a> / Bottleneck Diagnosis</p>
+    <h1>Tools to Diagnose <em>Performance Bottlenecks</em></h1>
+    <p class="byline">Updated May 2026 &nbsp;·&nbsp; System, Application, Database & Load Testing</p>
+    <p class="lead">The definitive 2026 guide to diagnosing performance bottlenecks. Use the interactive Bottleneck Finder to get personalized tool recommendations, browse tools by category, and follow the step-by-step diagnosis methodology.</p>
+    <div class="header-pills">
+      <span class="pill hi">Bottleneck Finder wizard</span>
+      <span class="pill hi">Tools by category</span>
+      <span class="pill green">Free & paid options</span>
+      <span class="pill">Updated 2026</span>
+    </div>
+  </div>
 </header>
 
-<div class="container">
+<nav class="nav-bar">
+  <div class="container">
+    <a href="#finder">Bottleneck Finder</a>
+    <a href="#tools">Tools by Category</a>
+    <a href="#methodology">Methodology</a>
+    <a href="#comparison">Comparison</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</nav>
 
-<section>
-<h2>System Performance & Debugging Toolkit</h2>
-<p>
-These system performance debug tools are designed for developers, DevOps engineers, and system administrators.
-Analyze CPU bottlenecks, detect memory leaks, inspect disk I/O, monitor system load, and debug processes to
-ensure optimal performance and stability.
-</p>
+<!-- BOTTLENECK FINDER WIZARD -->
+<section id="finder">
+  <div class="container">
+    <h2><em>Bottleneck Finder</em> – Interactive Diagnostic Tool</h2>
+    <p class="section-lead">Answer 4 questions about your symptoms and get a personalized list of diagnosis tools and next steps. No guessing — follow the data.</p>
+
+    <div class="wizard-wrap">
+      <div class="wizard-head">
+        <span class="wizard-title">// Bottleneck Finder — Symptom-Based Tool Recommender</span>
+        <span class="wizard-step-indicator" id="wiz-step-indicator">Step 1 of 4</span>
+      </div>
+      <div class="wiz-progress"><div class="wiz-progress-fill" id="wiz-prog" style="width:25%"></div></div>
+      <div class="wizard-body" id="wizard-body"></div>
+      <div class="wizard-result" id="wizard-result"></div>
+    </div>
+  </div>
 </section>
 
-<section class="grid">
+<!-- TOOLS BY CATEGORY -->
+<section id="tools">
+  <div class="container">
+    <h2>Performance Bottleneck Tools <em>by Category</em></h2>
+    <p class="section-lead">Every meaningful tool for diagnosing performance bottlenecks, organized by the type of bottleneck they target.</p>
 
-<div class="card">
-<h3>CPU Bottleneck Analyzer</h3>
-<p>Detect CPU limitations and performance issues.</p>
-<a href="system-performance-debug-tools/cpu-bottleneck">system-performance-debug-tools/cpu-bottleneck</a>
-</div>
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="switchCat('system', this)">System / OS</button>
+      <button class="cat-tab" onclick="switchCat('app', this)">Application</button>
+      <button class="cat-tab" onclick="switchCat('database', this)">Database</button>
+      <button class="cat-tab" onclick="switchCat('load', this)">Load Testing</button>
+      <button class="cat-tab" onclick="switchCat('cloud', this)">Cloud / APM</button>
+      <button class="cat-tab" onclick="switchCat('web', this)">Web / Frontend</button>
+    </div>
 
-<div class="card">
-<h3>Disk I/O Analyzer</h3>
-<p>Analyze disk read/write performance.</p>
-<a href="system-performance-debug-tools/disk-io">system-performance-debug-tools/disk-io</a>
-</div>
+    <!-- SYSTEM -->
+    <div class="cat-panel active" id="cat-system">
+      <div class="tool-grid">
+        <div class="tool-card"><div class="tc-name">htop / top <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Interactive process viewer. Shows per-CPU core usage, memory, swap, load average, and per-process CPU/mem. The first tool to open when a server is slow.</div><div class="tc-tags"><span class="tc-tag">Linux</span><span class="tc-tag">CPU</span><span class="tc-tag">Memory</span></div></div>
+        <div class="tool-card"><div class="tc-name">vmstat / iostat / sar <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Linux sysstat suite. vmstat for memory and CPU, iostat for disk I/O per device, sar for historical metrics. Essential for spotting I/O wait and swap.</div><div class="tc-tags"><span class="tc-tag">Linux</span><span class="tc-tag">Disk I/O</span><span class="tc-tag">Swap</span></div></div>
+        <div class="tool-card"><div class="tc-name">perf (Linux) <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Linux kernel performance counters. CPU profiling, cache misses, branch mispredictions. Use perf top for live sampling, perf record + report for flame graphs.</div><div class="tc-tags"><span class="tc-tag">Linux</span><span class="tc-tag">CPU profiling</span><span class="tc-tag">Kernel</span></div></div>
+        <div class="tool-card"><div class="tc-name">Perfmon / Resource Monitor <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Windows built-in performance monitoring. Counter logging for CPU, memory, disk, network over time. Baseline collection before and during issues.</div><div class="tc-tags"><span class="tc-tag">Windows</span><span class="tc-tag">CPU</span><span class="tc-tag">Disk</span></div></div>
+        <div class="tool-card"><div class="tc-name">Process Monitor (Procmon) <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Windows process activity monitor (Sysinternals). Every file, registry, and network operation per process with timestamps. Essential for diagnosing Windows app slowness.</div><div class="tc-tags"><span class="tc-tag">Windows</span><span class="tc-tag">File I/O</span><span class="tc-tag">Registry</span></div></div>
+        <div class="tool-card"><div class="tc-name">Netdata <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Real-time performance monitoring with 1-second granularity. CPU, memory, disk, network, containers. Self-hosted dashboard. One of the best free options for server monitoring.</div><div class="tc-tags"><span class="tc-tag">Linux</span><span class="tc-tag">Real-time</span><span class="tc-tag">Docker</span></div></div>
+        <div class="tool-card"><div class="tc-name">BPF / bpftrace <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Linux kernel eBPF tracing. Advanced: trace any kernel or user-space function with minimal overhead. Used by Netflix and Cloudflare for production profiling.</div><div class="tc-tags"><span class="tc-tag">Linux</span><span class="tc-tag">Advanced</span><span class="tc-tag">Kernel tracing</span></div></div>
+        <div class="tool-card"><div class="tc-name">Activity Monitor / Instruments <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">macOS system monitoring. Activity Monitor for quick checks. Xcode Instruments for deep CPU, memory, and I/O profiling on macOS and iOS.</div><div class="tc-tags"><span class="tc-tag">macOS</span><span class="tc-tag">iOS</span><span class="tc-tag">CPU</span></div></div>
+      </div>
+    </div>
 
-<div class="card">
-<h3>System Load Monitor</h3>
-<p>Monitor system load and resource usage.</p>
-<a href="system-performance-debug-tools/load">system-performance-debug-tools/load</a>
-</div>
+    <!-- APPLICATION -->
+    <div class="cat-panel" id="cat-app">
+      <div class="tool-grid">
+        <div class="tool-card"><div class="tc-name">async-profiler <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Low-overhead JVM profiler for Java and Kotlin. CPU, allocation, and lock profiling with flame graph output. The standard choice for production JVM profiling.</div><div class="tc-tags"><span class="tc-tag">Java</span><span class="tc-tag">Kotlin</span><span class="tc-tag">JVM</span><span class="tc-tag">Flame graphs</span></div></div>
+        <div class="tool-card"><div class="tc-name">py-spy <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Sampling profiler for Python. Attaches to a running process without code changes. Outputs flame graphs. Essential for diagnosing slow Python APIs or data pipelines.</div><div class="tc-tags"><span class="tc-tag">Python</span><span class="tc-tag">Live profiling</span><span class="tc-tag">Flame graphs</span></div></div>
+        <div class="tool-card"><div class="tc-name">dotnet-trace / dotnet-counters <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Official .NET diagnostics tools. dotnet-trace for CPU and allocation profiling (view in SpeedScope or PerfView). dotnet-counters for live GC and request rate metrics.</div><div class="tc-tags"><span class="tc-tag">.NET</span><span class="tc-tag">C#</span><span class="tc-tag">GC</span></div></div>
+        <div class="tool-card"><div class="tc-name">Pyroscope <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Continuous profiling platform. Always-on profiling for Go, Python, Java, Ruby, Node.js with minimal overhead. Grafana integration. Self-hostable or Grafana Cloud.</div><div class="tc-tags"><span class="tc-tag">Go</span><span class="tc-tag">Python</span><span class="tc-tag">Java</span><span class="tc-tag">Node</span></div></div>
+        <div class="tool-card"><div class="tc-name">pprof (Go) <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Built-in Go profiling. CPU, memory, goroutine, and mutex profiles via HTTP endpoint. Use go tool pprof for interactive flame graph analysis. Zero setup for Go projects.</div><div class="tc-tags"><span class="tc-tag">Go</span><span class="tc-tag">Built-in</span><span class="tc-tag">Goroutines</span></div></div>
+        <div class="tool-card"><div class="tc-name">node --prof / Clinic.js <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Node.js V8 profiler (built-in) and Clinic.js for event loop lag, CPU, and memory profiling. Clinic Doctor auto-diagnoses common Node performance antipatterns.</div><div class="tc-tags"><span class="tc-tag">Node.js</span><span class="tc-tag">V8</span><span class="tc-tag">Event loop</span></div></div>
+        <div class="tool-card"><div class="tc-name">JProfiler / YourKit <span class="badge-paid" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--orange-dim);color:var(--orange);border:1px solid #3a2200;">Paid</span></div><div class="tc-desc">Commercial JVM profilers with GUI. Best for complex thread analysis, deadlock detection, and heap dump analysis. JProfiler ~$499, YourKit ~$499 per license.</div><div class="tc-tags"><span class="tc-tag">Java</span><span class="tc-tag">GUI</span><span class="tc-tag">Heap analysis</span></div></div>
+        <div class="tool-card"><div class="tc-name">Valgrind (Callgrind / Massif) <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">C/C++ memory and CPU profiling. Callgrind for call graph profiling, Massif for heap memory tracking. High overhead — best used in dev/staging, not production.</div><div class="tc-tags"><span class="tc-tag">C/C++</span><span class="tc-tag">Memory</span><span class="tc-tag">CPU</span></div></div>
+      </div>
+    </div>
 
-<div class="card">
-<h3>Memory Leak Detector</h3>
-<p>Identify memory leaks and usage issues.</p>
-<a href="system-performance-debug-tools/mem-leak">system-performance-debug-tools/mem-leak</a>
-</div>
+    <!-- DATABASE -->
+    <div class="cat-panel" id="cat-database">
+      <div class="tool-grid">
+        <div class="tool-card"><div class="tc-name">EXPLAIN ANALYZE (PostgreSQL) <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Shows query execution plan with actual timing. Use EXPLAIN (ANALYZE, BUFFERS) for cache hit info. pgMustard and explain.dalibo.com visualize plans graphically.</div><div class="tc-tags"><span class="tc-tag">PostgreSQL</span><span class="tc-tag">Query plan</span></div></div>
+        <div class="tool-card"><div class="tc-name">pg_stat_statements <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">PostgreSQL extension that tracks execution stats for all queries. Identifies the slowest queries by total_time / mean_time. The first place to look for PostgreSQL bottlenecks.</div><div class="tc-tags"><span class="tc-tag">PostgreSQL</span><span class="tc-tag">Slow queries</span></div></div>
+        <div class="tool-card"><div class="tc-name">MySQL slow query log / EXPLAIN <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Enable slow_query_log and set long_query_time=1. Use mysqldumpslow to analyze. EXPLAIN FORMAT=JSON for detailed query plan. Percona Toolkit for production analysis.</div><div class="tc-tags"><span class="tc-tag">MySQL</span><span class="tc-tag">MariaDB</span></div></div>
+        <div class="tool-card"><div class="tc-name">pgBadger <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">PostgreSQL log analyzer. Parses pg log files and generates HTML reports with top slow queries, lock waits, connection counts, and query frequency. Essential for PG ops.</div><div class="tc-tags"><span class="tc-tag">PostgreSQL</span><span class="tc-tag">Log analysis</span></div></div>
+        <div class="tool-card"><div class="tc-name">Percona Monitoring & Mgmt (PMM) <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Open-source database performance monitoring. MySQL, PostgreSQL, MongoDB. Query Analytics (QAN) shows slow queries with execution plans. Self-hosted Grafana dashboards.</div><div class="tc-tags"><span class="tc-tag">MySQL</span><span class="tc-tag">PostgreSQL</span><span class="tc-tag">MongoDB</span></div></div>
+        <div class="tool-card"><div class="tc-name">Datadog Database Monitoring <span class="badge-paid" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--orange-dim);color:var(--orange);border:1px solid #3a2200;">Paid</span></div><div class="tc-desc">Real-time query performance tracking with execution plan capture for every query. Correlates DB slowdowns with infrastructure metrics. Best for high-traffic production systems.</div><div class="tc-tags"><span class="tc-tag">MySQL</span><span class="tc-tag">PostgreSQL</span><span class="tc-tag">Redis</span></div></div>
+      </div>
+    </div>
 
-<div class="card">
-<h3>Process Analyzer</h3>
-<p>Inspect running processes and behavior.</p>
-<a href="system-performance-debug-tools/process">system-performance-debug-tools/process</a>
-</div>
+    <!-- LOAD TESTING -->
+    <div class="cat-panel" id="cat-load">
+      <div class="tool-grid">
+        <div class="tool-card"><div class="tc-name">k6 <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Developer-friendly load testing tool. Scripts in JavaScript. Outputs percentile latency, throughput, and error rates. Integrates with Grafana. Best modern choice for API load testing.</div><div class="tc-tags"><span class="tc-tag">API</span><span class="tc-tag">HTTP</span><span class="tc-tag">gRPC</span><span class="tc-tag">JS</span></div></div>
+        <div class="tool-card"><div class="tc-name">Gatling <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Scala-based load tester with real-time HTML reports. Code-as-config approach. Excellent for finding response time bottlenecks under concurrent load. Enterprise edition for CI/CD.</div><div class="tc-tags"><span class="tc-tag">HTTP</span><span class="tc-tag">WebSocket</span><span class="tc-tag">CI/CD</span></div></div>
+        <div class="tool-card"><div class="tc-name">Locust <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Python-based distributed load testing. Write test scenarios in Python. Web UI for live monitoring. Easy to extend for complex workflows. Good for developers already using Python.</div><div class="tc-tags"><span class="tc-tag">Python</span><span class="tc-tag">Distributed</span><span class="tc-tag">HTTP</span></div></div>
+        <div class="tool-card"><div class="tc-name">Apache JMeter <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Java-based load tester. GUI for building test plans. Supports HTTP, FTP, JDBC, LDAP. Most widely used in enterprise environments. Steep learning curve but extremely flexible.</div><div class="tc-tags"><span class="tc-tag">HTTP</span><span class="tc-tag">JDBC</span><span class="tc-tag">Enterprise</span></div></div>
+        <div class="tool-card"><div class="tc-name">Artillery <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">YAML/JS load testing for Node.js teams. Good for HTTP and WebSocket. Cloud version (Artillery Cloud) for distributed testing. Simple setup for basic API load tests.</div><div class="tc-tags"><span class="tc-tag">Node</span><span class="tc-tag">WebSocket</span><span class="tc-tag">YAML</span></div></div>
+      </div>
+    </div>
 
-<div class="card">
-<h3>System Profiler</h3>
-<p>Profile system performance and bottlenecks.</p>
-<a href="system-performance-debug-tools/profiler">system-performance-debug-tools/profiler</a>
-</div>
+    <!-- CLOUD / APM -->
+    <div class="cat-panel" id="cat-cloud">
+      <div class="tool-grid">
+        <div class="tool-card"><div class="tc-name">Datadog <span class="badge-paid" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--orange-dim);color:var(--orange);border:1px solid #3a2200;">Paid</span></div><div class="tc-desc">Full-stack observability platform. APM, infrastructure monitoring, logs, synthetics, and database monitoring in one. Best for DevOps teams in cloud environments. $15-23/host/month.</div><div class="tc-tags"><span class="tc-tag">APM</span><span class="tc-tag">Logs</span><span class="tc-tag">Cloud</span><span class="tc-tag">All stacks</span></div></div>
+        <div class="tool-card"><div class="tc-name">New Relic <span class="badge-paid" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--orange-dim);color:var(--orange);border:1px solid #3a2200;">Paid</span></div><div class="tc-desc">APM with AI-powered anomaly detection and transaction tracing. Free tier (100GB/month ingest). Strong for .NET, Java, Node, Ruby, PHP, Python. Good distributed tracing.</div><div class="tc-tags"><span class="tc-tag">APM</span><span class="tc-tag">.NET</span><span class="tc-tag">Java</span><span class="tc-tag">AI alerts</span></div></div>
+        <div class="tool-card"><div class="tc-name">Dynatrace <span class="badge-paid" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--orange-dim);color:var(--orange);border:1px solid #3a2200;">Paid</span></div><div class="tc-desc">Enterprise APM with AI root cause analysis (Davis AI). Automatically maps your full application stack. Best-in-class for large enterprise environments. Custom pricing.</div><div class="tc-tags"><span class="tc-tag">Enterprise</span><span class="tc-tag">AI</span><span class="tc-tag">Full-stack</span></div></div>
+        <div class="tool-card"><div class="tc-name">Prometheus + Grafana <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">The open-source monitoring standard. Prometheus scrapes metrics, Grafana visualizes. Huge ecosystem of exporters (node_exporter, postgres_exporter, etc.). Self-hosted, free.</div><div class="tc-tags"><span class="tc-tag">Self-hosted</span><span class="tc-tag">Kubernetes</span><span class="tc-tag">PromQL</span></div></div>
+        <div class="tool-card"><div class="tc-name">AWS CloudWatch / X-Ray <span class="badge-paid" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--orange-dim);color:var(--orange);border:1px solid #3a2200;">Paid</span></div><div class="tc-desc">Native AWS monitoring. CloudWatch for metrics and alarms, X-Ray for distributed tracing on AWS services. Pay-per-use. Essential if you're running on AWS.</div><div class="tc-tags"><span class="tc-tag">AWS</span><span class="tc-tag">Lambda</span><span class="tc-tag">ECS</span></div></div>
+        <div class="tool-card"><div class="tc-name">OpenTelemetry <span class="badge-oss" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #0a2040;">OSS</span></div><div class="tc-desc">Vendor-neutral observability framework. Instrument once, export to any backend (Datadog, Grafana, Jaeger, etc.). The future standard for distributed tracing and metrics.</div><div class="tc-tags"><span class="tc-tag">All languages</span><span class="tc-tag">Vendor-neutral</span><span class="tc-tag">CNCF</span></div></div>
+      </div>
+    </div>
 
-<div class="card">
-<h3>Troubleshooting Assistant</h3>
-<p>Diagnose and resolve performance issues.</p>
-<a href="system-performance-debug-tools/troubleshoot">system-performance-debug-tools/troubleshoot</a>
-</div>
-
+    <!-- WEB -->
+    <div class="cat-panel" id="cat-web">
+      <div class="tool-grid">
+        <div class="tool-card"><div class="tc-name">Chrome DevTools Performance <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Browser flame chart showing JavaScript execution, layout, paint, and compositing. The first tool for web performance bottleneck diagnosis. F12 → Performance tab → Record.</div><div class="tc-tags"><span class="tc-tag">JavaScript</span><span class="tc-tag">Layout</span><span class="tc-tag">Paint</span></div></div>
+        <div class="tool-card"><div class="tc-name">Lighthouse <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Automated web performance audit. LCP, FID, CLS, TTFB. Built into Chrome DevTools. Identifies render-blocking resources, unused CSS, large images, and DOM size issues.</div><div class="tc-tags"><span class="tc-tag">Core Web Vitals</span><span class="tc-tag">LCP</span><span class="tc-tag">CLS</span></div></div>
+        <div class="tool-card"><div class="tc-name">WebPageTest <span class="badge-free" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid #1a4a28;">Free</span></div><div class="tc-desc">Advanced web performance testing from multiple global locations. Waterfall charts, video comparison, Core Web Vitals, and scripted multi-step tests. Better than PageSpeed for detail.</div><div class="tc-tags"><span class="tc-tag">Waterfall</span><span class="tc-tag">Global</span><span class="tc-tag">Video</span></div></div>
+        <div class="tool-card"><div class="tc-name">DebugBear <span class="badge-paid" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--orange-dim);color:var(--orange);border:1px solid #3a2200;">Paid</span></div><div class="tc-desc">Continuous web performance monitoring. Tracks Core Web Vitals over time with per-deploy attribution. Shows which code changes caused LCP regressions. Starts at $67/month.</div><div class="tc-tags"><span class="tc-tag">CWV monitoring</span><span class="tc-tag">Deploy tracking</span></div></div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section>
-<h2>Why System Debugging Matters</h2>
-<p>
-Performance issues can impact reliability, scalability, and user experience.
-These tools help identify root causes, optimize resource usage, and maintain
-efficient and stable systems.
-</p>
+<!-- METHODOLOGY -->
+<section id="methodology">
+  <div class="container">
+    <h2>Performance Bottleneck <em>Diagnosis Methodology</em></h2>
+    <p class="section-lead">A systematic approach to finding bottlenecks. Skipping steps leads to fixing the wrong problem — one of the most common (and expensive) mistakes in performance work.</p>
+
+    <h3>Step 1 – Establish a Baseline</h3>
+    <p>Before chasing bottlenecks, measure what "normal" looks like. Record CPU, memory, disk I/O, network throughput, and response times during normal operating conditions. Without a baseline, you can't know what's degraded and by how much. Tools: <code>sar -A</code> for historical Linux metrics, Prometheus with Grafana for continuous baseline tracking.</p>
+
+    <h3>Step 2 – Reproduce the Problem Under Load</h3>
+    <p>Performance problems rarely appear in isolation — they surface under load. Use a load testing tool (k6, Gatling, Locust) to simulate realistic traffic. If you can't reproduce the problem under controlled load, you can't reliably fix it. Monitor all resources simultaneously during the load test. <strong>Identify which resource saturates first</strong> — that's your bottleneck.</p>
+
+    <h3>Step 3 – Determine Bottleneck Type</h3>
+    <p>The four primary categories. <strong>CPU-bound:</strong> CPU utilization above 80% sustained, long CPU queues (load average > core count). Fix: profile code, parallelize, cache expensive computations. <strong>Memory-bound:</strong> high swap usage, frequent GC pauses, out-of-memory kills. Fix: fix memory leaks, increase heap limits, optimize data structures. <strong>I/O-bound:</strong> high disk I/O wait (>20% CPU in iowait), disk queue depth > 1 sustained. Fix: add caching layer, switch to faster storage (NVMe), optimize queries. <strong>Network-bound:</strong> bandwidth saturation, high latency between services. Fix: add CDN, compress responses, co-locate services.</p>
+
+    <h3>Step 4 – Deep-Dive with the Right Tool</h3>
+    <p>Once you know the bottleneck type, pick the right tool from the category above. For CPU-bound applications, use a profiler (async-profiler, py-spy, pprof) to generate flame graphs showing exactly where CPU time is spent. For database bottlenecks, use EXPLAIN ANALYZE and slow query logs. For distributed systems, use distributed tracing (OpenTelemetry + Jaeger or Datadog APM).</p>
+
+    <h3>Step 5 – Fix, Verify, and Monitor</h3>
+    <p>Fix the identified bottleneck, then re-run the load test under identical conditions. Verify the improvement with metrics, not anecdotes. After deploying to production, set up alerting so you're notified before the bottleneck returns. The bottleneck often moves to the next constraint after fixing the first (Theory of Constraints).</p>
+  </div>
 </section>
 
-</div>
+<!-- COMPARISON -->
+<section id="comparison">
+  <div class="container">
+    <h2>Performance Monitoring Tools <em>Comparison</em></h2>
+    <p class="section-lead">Key commercial and open-source options side by side for teams choosing a primary monitoring platform.</p>
+
+    <div class="ref-table-wrap">
+      <table>
+        <thead><tr><th>Tool</th><th>Type</th><th>APM</th><th>Infrastructure</th><th>Logs</th><th>Load Testing</th><th>Free Tier</th><th>Starting Price</th></tr></thead>
+        <tbody>
+          <tr><td class="td-tool">Datadog</td><td>SaaS</td><td><span class="c-y">✓</span></td><td><span class="c-y">✓</span></td><td><span class="c-y">✓</span></td><td><span class="c-y">✓ Synthetics</span></td><td><span class="c-n">✗</span></td><td>$15/host/mo</td></tr>
+          <tr><td class="td-tool">New Relic</td><td>SaaS</td><td><span class="c-y">✓</span></td><td><span class="c-y">✓</span></td><td><span class="c-y">✓</span></td><td><span class="c-p">⚡ Synthetics</span></td><td><span class="c-y">✓ 100GB/mo</span></td><td>$49/user/mo</td></tr>
+          <tr><td class="td-tool">Dynatrace</td><td>SaaS</td><td><span class="c-y">✓</span></td><td><span class="c-y">✓</span></td><td><span class="c-y">✓</span></td><td><span class="c-n">✗</span></td><td><span class="c-y">✓ 15-day trial</span></td><td>Custom</td></tr>
+          <tr><td class="td-tool">Prometheus + Grafana</td><td>OSS</td><td><span class="c-p">⚡ Via Pyroscope</span></td><td><span class="c-y">✓</span></td><td><span class="c-p">⚡ Loki</span></td><td><span class="c-n">✗</span></td><td><span class="c-y">✓ Free</span></td><td>Hosting cost only</td></tr>
+          <tr><td class="td-tool">Netdata</td><td>OSS/SaaS</td><td><span class="c-n">✗</span></td><td><span class="c-y">✓</span></td><td><span class="c-n">✗</span></td><td><span class="c-n">✗</span></td><td><span class="c-y">✓ Free forever</span></td><td>$0 self-hosted</td></tr>
+          <tr><td class="td-tool">k6 + Grafana Cloud</td><td>OSS/SaaS</td><td><span class="c-n">✗</span></td><td><span class="c-n">✗</span></td><td><span class="c-n">✗</span></td><td><span class="c-y">✓</span></td><td><span class="c-y">✓ 50 VUs</span></td><td>$49/mo</td></tr>
+          <tr><td class="td-tool">Gatling Enterprise</td><td>SaaS</td><td><span class="c-n">✗</span></td><td><span class="c-n">✗</span></td><td><span class="c-n">✗</span></td><td><span class="c-y">✓</span></td><td><span class="c-y">✓ OSS free</span></td><td>Custom</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS NAV -->
+<section style="padding:40px 0; border-bottom:1px solid var(--border);">
+  <div class="container">
+    <h2>Performance Debug <em>Tools</em></h2>
+    <div class="nav-tools-grid">
+      <a href="cpu-bottleneck/index.html" class="nav-tool-card"><span class="ntc-name">CPU Bottleneck Analyzer</span><span class="ntc-desc">Detect CPU saturation patterns</span></a>
+      <a href="memory-leak/index.html" class="nav-tool-card"><span class="ntc-name">Memory Leak Detector</span><span class="ntc-desc">Identify memory growth patterns</span></a>
+      <a href="disk-io/index.html" class="nav-tool-card"><span class="ntc-name">Disk I/O Analyzer</span><span class="ntc-desc">Analyze disk throughput and latency</span></a>
+      <a href="load-monitor/index.html" class="nav-tool-card"><span class="ntc-name">System Load Monitor</span><span class="ntc-desc">Monitor load average and queues</span></a>
+      <a href="process/index.html" class="nav-tool-card"><span class="ntc-name">Process Analyzer</span><span class="ntc-desc">Inspect process CPU and memory</span></a>
+      <a href="profiler/index.html" class="nav-tool-card"><span class="ntc-name">System Profiler</span><span class="ntc-desc">Profile system resource usage</span></a>
+      <a href="troubleshoot/index.html" class="nav-tool-card"><span class="ntc-name">Troubleshooting Assistant</span><span class="ntc-desc">Guided bottleneck resolution</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <h2>Bottleneck Diagnosis – <em>FAQ</em></h2>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What is a performance bottleneck?<span class="faq-toggle">+</span></div>
+      <div class="faq-a">A performance bottleneck is the single resource or component that limits overall system throughput. Fixing any other component won't improve performance until the bottleneck is resolved (Theory of Constraints). Common bottlenecks: CPU saturation (>80% sustained), memory exhaustion leading to swap usage, disk I/O saturation (queue depth > 1 sustained), slow database queries, network latency, or application-level issues like thread contention, lock waits, or N+1 query patterns in ORMs.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do .NET developers check for performance bottlenecks?<span class="faq-toggle">+</span></div>
+      <div class="faq-a">For .NET applications: (1) dotnet-counters monitor --process-id [PID] for live GC, thread pool, and request rate metrics. (2) dotnet-trace collect -p [PID] for CPU and allocation profiling — view in SpeedScope or PerfView. (3) dotnet-dump for memory dump analysis and heap object inspection. (4) BenchmarkDotNet for micro-benchmarks. (5) New Relic or Datadog APM for production transaction tracing with .NET agents. The PerfView tool (from Microsoft) remains the most powerful for deep CPU and GC analysis.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What tools do professionals use to identify performance bottlenecks in code?<span class="faq-toggle">+</span></div>
+      <div class="faq-a">By language: Java/Kotlin → async-profiler (production-safe, low overhead), YourKit/JProfiler (development). Python → py-spy, cProfile, scalene. Go → built-in pprof via net/http/pprof. Node.js → node --prof, Clinic.js, 0x. .NET → dotnet-trace, PerfView, BenchmarkDotNet. C/C++ → perf, Valgrind Callgrind, Heaptrack. Ruby → stackprof, memory_profiler. All → Pyroscope (continuous profiling for any language). The Reddit .NET community particularly recommends dotnet-trace + SpeedScope for production profiling without overhead.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What is the difference between a profiler and a load testing tool for diagnosing bottlenecks?<span class="faq-toggle">+</span></div>
+      <div class="faq-a">Load testing tools (k6, Gatling, JMeter) simulate traffic to identify at what throughput your system degrades — they show WHEN you have a bottleneck. Profilers (async-profiler, py-spy, perf) show WHERE in the code the time is being spent — they show WHAT the bottleneck is. You typically use them together: run a load test to reproduce and measure the bottleneck, then run a profiler during a load test to pinpoint the specific function or query causing the saturation.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I find performance bottlenecks in Windows applications?<span class="faq-toggle">+</span></div>
+      <div class="faq-a">For Windows: (1) Resource Monitor (resmon.exe) for quick CPU/memory/disk/network per-process view. (2) Performance Monitor (perfmon.msc) for counter logging and custom data collector sets. (3) Process Monitor (Procmon from Sysinternals) for file, registry, and network activity per process with timing. (4) Windows Performance Analyzer (WPA) + Windows Performance Recorder (WPR) for deep ETW trace analysis — the most powerful Windows profiling suite. (5) WinDbg for crash dump analysis and memory investigation. For .NET on Windows specifically: PerfView for GC and CPU, dotnet-trace for .NET 5+ applications.</div>
+    </div>
+  </div>
+</section>
 
 <footer>
-<p>© 2026 System Performance Tools – Detect issues, optimize systems, scale efficiently</p>
+  <div class="container">
+    <span>Tools to Diagnose Performance Bottlenecks — May 2026</span>
+    <nav>
+      <a href="#finder">Finder</a>
+      <a href="#tools">Tools</a>
+      <a href="#methodology">Method</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </div>
 </footer>
 
+<!-- ================================================================
+     JAVASCRIPT — ES5
+     ================================================================ -->
+<script>
+
+/* ── BOTTLENECK WIZARD ── */
+var QUESTIONS = [
+  {
+    q: 'What type of system are you diagnosing?',
+    opts: [
+      { icon:'🖥️', label:'Server / Backend application', detail:'API, microservice, monolith, job processor', val:'server' },
+      { icon:'🌐', label:'Website / Web frontend', detail:'Page load speed, JavaScript performance, Core Web Vitals', val:'web' },
+      { icon:'🗄️', label:'Database (PostgreSQL, MySQL, MongoDB)', detail:'Slow queries, connection issues, high latency', val:'database' },
+      { icon:'☁️', label:'Distributed / Cloud system', detail:'Multiple services, Kubernetes, AWS/GCP/Azure', val:'cloud' }
+    ]
+  },
+  {
+    q: 'What symptom are you experiencing?',
+    opts: [
+      { icon:'🔥', label:'CPU is maxed out / system is slow under load', detail:'High CPU usage, long response times when traffic spikes', val:'cpu' },
+      { icon:'💾', label:'Memory usage keeps growing / OOM kills', detail:'Memory leak, swap usage, garbage collection issues', val:'memory' },
+      { icon:'💿', label:'Disk I/O is saturated / slow file operations', detail:'High I/O wait, slow reads/writes, storage bottleneck', val:'disk' },
+      { icon:'⏱️', label:'Specific operations or queries are slow', detail:'Slow endpoints, expensive queries, latency spikes', val:'slow_ops' }
+    ]
+  },
+  {
+    q: 'What is your technical environment?',
+    opts: [
+      { icon:'🐧', label:'Linux server (Ubuntu, CentOS, Amazon Linux)', detail:'', val:'linux' },
+      { icon:'🪟', label:'Windows server or application', detail:'', val:'windows' },
+      { icon:'🐳', label:'Containers / Kubernetes', detail:'Docker, K8s, ECS, microservices', val:'containers' },
+      { icon:'☕', label:'Specific language runtime (JVM, Python, .NET, Go)', detail:'', val:'runtime' }
+    ]
+  },
+  {
+    q: 'What is your budget for tooling?',
+    opts: [
+      { icon:'💚', label:'Free and open-source only', detail:'No paid tools budget', val:'free' },
+      { icon:'🟡', label:'Small budget for specialized tools', detail:'Under $100/month', val:'small' },
+      { icon:'🔵', label:'Standard team budget', detail:'$100-$500/month', val:'medium' },
+      { icon:'🟠', label:'Enterprise budget', detail:'No hard limit — need best-in-class', val:'enterprise' }
+    ]
+  }
+];
+
+var RESULTS = {
+  'server-cpu-linux-free':    { title:'Linux Server CPU Bottleneck', color:'#ef4444',
+    desc:'Your application is CPU-bound on a Linux server. Use sampling profilers that attach to the running process without code changes.',
+    tools:[ {n:'htop / top', d:'Instant CPU per-process view', f:'free'}, {n:'perf', d:'Kernel-level CPU sampling and flame graphs', f:'oss'}, {n:'async-profiler', d:'JVM CPU profiling with low overhead', f:'oss'}, {n:'py-spy / pprof', d:'Python / Go production profilers', f:'oss'} ],
+    steps:['Run htop — confirm CPU is the bottleneck (not I/O wait)', 'Use perf top or your language profiler to identify hot functions', 'Generate a flame graph — widest sections = most CPU time', 'Optimize or cache the identified hot path', 'Re-benchmark under the same load'] },
+  'web-slow_ops-windows-small': { title:'Web Frontend Performance', color:'#38bdf8',
+    desc:'Web frontend bottleneck. Start with browser-based tools — no server access needed.',
+    tools:[ {n:'Chrome DevTools', d:'Performance tab flame chart', f:'free'}, {n:'Lighthouse', d:'LCP, CLS, INP audit', f:'free'}, {n:'WebPageTest', d:'Waterfall + global testing', f:'free'}, {n:'DebugBear', d:'Continuous CWV monitoring', f:'paid'} ],
+    steps:['Open Chrome DevTools → Performance tab → Record a page load', 'Look for long tasks (red marks) blocking the main thread', 'Run Lighthouse for Core Web Vitals score and recommendations', 'Use WebPageTest for waterfall analysis and TTFB', 'Monitor with DebugBear to catch regressions on deploy'] },
+  'database-slow_ops-linux-free': { title:'Database Query Bottleneck', color:'#a78bfa',
+    desc:'Database queries are your bottleneck. Enable slow query logging and use EXPLAIN ANALYZE to find expensive queries.',
+    tools:[ {n:'pg_stat_statements', d:'PostgreSQL: top slow queries by total time', f:'free'}, {n:'EXPLAIN ANALYZE', d:'Query execution plan with timing', f:'free'}, {n:'MySQL slow query log', d:'Log queries over a time threshold', f:'free'}, {n:'Percona PMM', d:'Open-source DB monitoring dashboard', f:'oss'} ],
+    steps:['Enable slow query log (MySQL) or pg_stat_statements (PostgreSQL)', 'Identify the top queries by total_time, not just mean_time', 'Run EXPLAIN (ANALYZE, BUFFERS) on each slow query', 'Add missing indexes, fix N+1 queries, add query caching', 'Set up PMM for ongoing query performance monitoring'] },
+  'cloud-cpu-containers-medium': { title:'Distributed System / Container CPU Bottleneck', color:'#f59e0b',
+    desc:'CPU bottleneck in a containerized/cloud environment. You need distributed tracing plus infrastructure monitoring.',
+    tools:[ {n:'Prometheus + Grafana', d:'Container and pod metrics with PromQL', f:'oss'}, {n:'Pyroscope', d:'Continuous profiling for any language', f:'oss'}, {n:'OpenTelemetry', d:'Distributed tracing across services', f:'oss'}, {n:'Datadog', d:'Unified APM + infra monitoring', f:'paid'} ],
+    steps:['Deploy Prometheus node_exporter on all hosts, collect pod metrics', 'Add OpenTelemetry tracing to identify slow service calls', 'Use Pyroscope for always-on CPU profiling per service', 'Correlate high-CPU pods with slow trace spans in Grafana', 'Set Kubernetes CPU limits and HPA autoscaling thresholds'] }
+};
+
+var answers = [];
+var currentQ = 0;
+
+function buildWizardQuestion() {
+  var q = QUESTIONS[currentQ];
+  var pct = Math.round(((currentQ + 1) / QUESTIONS.length) * 100);
+  document.getElementById('wiz-prog').style.width = pct + '%';
+  document.getElementById('wiz-step-indicator').textContent = 'Step ' + (currentQ + 1) + ' of ' + QUESTIONS.length;
+
+  var optsHtml = '';
+  for (var i = 0; i < q.opts.length; i++) {
+    var o = q.opts[i];
+    var sel = answers[currentQ] === o.val ? ' selected' : '';
+    optsHtml += '<div class="wizard-option' + sel + '" data-val="' + o.val + '" onclick="selectOption(this)">'
+      + '<div class="opt-icon">' + o.icon + '</div>'
+      + '<div class="opt-text"><div class="opt-label">' + o.label + '</div>'
+      + (o.detail ? '<div class="opt-detail">' + o.detail + '</div>' : '')
+      + '</div></div>';
+  }
+
+  var navHtml = '';
+  if (currentQ > 0) { navHtml += '<button class="wiz-btn wiz-secondary" onclick="prevQuestion()">← Back</button>'; }
+  navHtml += '<button class="wiz-btn wiz-primary" onclick="nextQuestion()">Next →</button>';
+  if (currentQ === QUESTIONS.length - 1) {
+    navHtml = (currentQ > 0 ? '<button class="wiz-btn wiz-secondary" onclick="prevQuestion()">← Back</button>' : '')
+      + '<button class="wiz-btn wiz-primary" onclick="showResult()">Get Recommendations →</button>';
+  }
+
+  document.getElementById('wizard-body').innerHTML =
+    '<div class="wizard-question">' + q.q + '</div>'
+    + '<div class="wizard-options">' + optsHtml + '</div>'
+    + '<div class="wizard-nav">' + navHtml + '</div>';
+}
+
+function selectOption(el) {
+  var opts = el.parentNode.querySelectorAll('.wizard-option');
+  for (var i = 0; i < opts.length; i++) { opts[i].className = 'wizard-option'; }
+  el.className = 'wizard-option selected';
+  answers[currentQ] = el.getAttribute('data-val');
+}
+
+function nextQuestion() {
+  if (!answers[currentQ]) { alert('Please select an option to continue.'); return; }
+  if (currentQ < QUESTIONS.length - 1) { currentQ++; buildWizardQuestion(); }
+}
+function prevQuestion() { if (currentQ > 0) { currentQ--; buildWizardQuestion(); } }
+
+function showResult() {
+  if (!answers[currentQ]) { alert('Please select an option.'); return; }
+
+  /* Find best matching result */
+  var key = answers.join('-');
+  var result = RESULTS[key];
+  if (!result) {
+    /* Fallback: match on first two answers */
+    var key2 = answers[0] + '-' + (answers[1] || 'cpu');
+    for (var k in RESULTS) {
+      if (k.indexOf(answers[0]) === 0 && k.indexOf(answers[1] || 'cpu') !== -1) {
+        result = RESULTS[k]; break;
+      }
+    }
+    if (!result) { result = RESULTS['server-cpu-linux-free']; }
+  }
+
+  document.getElementById('wizard-body').style.display = 'none';
+  var el = document.getElementById('wizard-result');
+  el.className = 'wizard-result visible';
+  el.style.display = 'block';
+
+  var badgeFn = function(f) {
+    if (f === 'free') { return '<span class="rt-badge badge-free">Free</span>'; }
+    if (f === 'oss')  { return '<span class="rt-badge badge-oss">Open Source</span>'; }
+    return '<span class="rt-badge badge-paid">Paid</span>';
+  };
+
+  var toolsHtml = '';
+  for (var t = 0; t < result.tools.length; t++) {
+    var tool = result.tools[t];
+    toolsHtml += '<div class="rt-card"><div class="rt-name">' + tool.n + '</div><div class="rt-desc">' + tool.d + '</div>' + badgeFn(tool.f) + '</div>';
+  }
+
+  var stepsHtml = '';
+  for (var s = 0; s < result.steps.length; s++) {
+    stepsHtml += '<li class="step"><span class="step-num">' + (s+1) + '</span><span>' + result.steps[s] + '</span></li>';
+  }
+
+  el.innerHTML = '<div class="result-hero" style="border-left-color:' + result.color + '">'
+    + '<div class="result-type">Diagnosis Result</div>'
+    + '<div class="result-title">' + result.title + '</div>'
+    + '<div class="result-desc">' + result.desc + '</div>'
+    + '</div>'
+    + '<div class="result-tools"><div class="rt-label">Recommended Tools</div><div class="rt-grid">' + toolsHtml + '</div></div>'
+    + '<div class="result-tools" style="margin-top:20px;"><div class="rt-label">Diagnosis Steps</div><ul class="steps-list">' + stepsHtml + '</ul></div>'
+    + '<div style="margin-top:16px;"><button class="wiz-btn wiz-secondary" onclick="resetWizard()">← Start Over</button></div>';
+
+  document.getElementById('wiz-step-indicator').textContent = 'Result';
+  document.getElementById('wiz-prog').style.width = '100%';
+}
+
+function resetWizard() {
+  answers = [];
+  currentQ = 0;
+  document.getElementById('wizard-result').className = 'wizard-result';
+  document.getElementById('wizard-result').style.display = 'none';
+  document.getElementById('wizard-body').style.display = 'block';
+  buildWizardQuestion();
+}
+
+/* ── CAT TABS ── */
+function switchCat(name, btn) {
+  var tabs = document.querySelectorAll('.cat-tab');
+  var panels = document.querySelectorAll('.cat-panel');
+  for (var i = 0; i < tabs.length; i++) { tabs[i].className = 'cat-tab'; }
+  for (var j = 0; j < panels.length; j++) { panels[j].className = 'cat-panel'; }
+  btn.className = 'cat-tab active';
+  document.getElementById('cat-' + name).className = 'cat-panel active';
+}
+
+function toggleFaq(el) {
+  var item = el.parentNode;
+  var isOpen = item.className.indexOf('open') !== -1;
+  var all = document.querySelectorAll('.faq-item');
+  for (var i = 0; i < all.length; i++) { all[i].className = 'faq-item'; }
+  if (!isOpen) { item.className = 'faq-item open'; }
+}
+
+/* INIT */
+buildWizardQuestion();
+
+</script>
 </body>
 </html>
